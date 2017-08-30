@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Retrospective</title>
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+        <!-- Include jQuery, D3, Bootstrap: -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js" ></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+        <!-- plugins -->
+    <script type="text/javascript" src="vis/jquery.bsFormAlerts.js"></script>
+    <script type="text/javascript" src="vis/bootstrap-multiselect.js"></script>
+    <script type="text/javascript" src="vis/sortable.min.js"></script>
+
+    <link rel="stylesheet" href="css/bootstrap-multiselect.css" type="text/css"/>
+        <!-- Timeline and csrftoken for ajax: -->
+    <script type= "text/javascript" src="vis/timeline.js"></script>
+    <script type= "text/javascript" src="vis/jscanner.js"></script>
+        <!-- Custom style: -->
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/details.css">
+</head>
+<body>
+    <!-- Set up details panel -->
+    <nav class="detail detail-right" id="detail">
+        <h3 id="detail-title"></h3>
+        <p id="detail-reporter"></p>
+        <p id="detail-assignee"></p>
+        <p id="detail-id"></p>
+        <p id="detail-type"></p>
+        <p id="detail-start"></p>
+        <p id="detail-end"></p>
+        <p id="detail-description-p"></p>
+    </nav>
+    <!-- end details panel -->
+
+    <!-- Set up container which holds search form and timeline -->
+    <div class="container">
+        <div class="panel-body" id="timeline">
+            <form class="form-inline form-search " id="lookupform" action="/timeline/" method="get" hidden="yes" >
+                <div class="form-group input-group">
+                    <input class="form-control" id="highlight_search" type="text" name="lookup_id" placeholder="Issue Id">
+                        <!-- Split button -->
+                    <span class="input-group-btn">
+                         <div class="btn-group">
+                             <button type="button" class="btn btn-primary" id="highlight_submit">Highlight</button>
+                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="caret"></span>
+                                <span class="sr-only">Toggle Dropdown</span>
+                             </button>
+                                <ul class="dropdown-menu">
+                                    <li><a href="" id="dropdown_highlight">Highlight</a></li>
+                                    <li><a href="" id="dropdown_focus">Focus</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="" id="highlight_dropdown_clip_window">Clip Window</a></li>
+                                    <li><a href="" id="highlight_dropdown_reset">Reset</a></li>
+                                </ul>
+                         </div>
+                    </span>
+                    </div>
+                    <div class="form-group input-group">
+                    <input class="form-control" id="query_search" type="text" name="lookup_id" placeholder="Search term">
+                            <!-- Split button -->
+                        <span class="input-group-btn">
+                             <div class="btn-group">
+                                 <button type="button" class="btn btn-primary" id="query_submit">Keyword</button>
+                                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                 </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="" id="dropdown_keyword">Keyword</a></li>
+                                        <li role="separator" class="divider"></li>
+                                        <li><a href="" id="query_dropdown_clip_window">Clip Window</a></li>
+                                        <li><a href="" id="query_dropdown_reset">Reset</a></li>
+                                    </ul>
+                            </div>
+                        </span>
+                    </div>
+                <div class="form-group">
+                    <div class="btn-group">
+                    <select id="type_select" multiple="multiple"></select>
+                   </div>
+                </div>
+                <span id="form-alert" data-alertid="example"></span>
+            </form>
+            <section id="chart"></section>
+        </div>
+    </div> <!-- end container -->
+
+
+    <!-- Retrieve template variables -->
+    <script type= "text/javascript">
+      // TYPES and DATA are global
+      var TYPES = ["Bug", "Epic", "Feature Request", "Improvement", "Questions", "Sub-task", "Task", "Technical Story", "User Story"]
+      var DATA
+    </script>
+    <!-- Set up toolbar -->
+    <script type= "text/javascript" src="vis/toolbar.js"></script>
+
+    <!-- Retrieve template variables -->
+    <script type= "text/javascript">
+        $(document).ready(function() {
+
+            var options = {}
+
+            // Reorder types to have Epics at top if exist
+            var index = TYPES.indexOf("Epic")
+            if (index > -1){
+                var removed = TYPES.splice(index, 1);
+                TYPES.unshift(removed[0]);
+            }
+            options["types"]   =  TYPES;
+            options["tooltip"] = ["title", "id", "type", "startdate", "enddate"]
+
+        // ==============Allow vis to dynamically resize==========//
+            if ( $(window).width() > 1300 ) {
+                // Disable bootstrap's auto-centering
+                $(".container").addClass("col-xs-12");
+
+                options["width"]         = $(window).width() * .95
+                options["height"]        = options["width"] * .45
+                options["contextheight"] = options["height"] * .15
+            }
+        // ---------------end of dynamic resize-------------------//
+
+
+        // =================Initialize visualizer=================//
+            // Instantiate the visualizer by:
+            // 1. Setting the details pane
+            // 2. Setting the details HTML function
+            // 3. Call vis.init(json) to load
+
+            // (1)
+            vis.details = $("#detail");
+
+            // (2) (Hardcoded for now)
+            vis.detailsHTML = function(d){
+                var rep = d.people["reporter"];
+                var ass = d.people["assignee"];
+                var reporterhtml = "Unknown";
+                var assigneehtml = "Unknown";
+
+                if(!$.isEmptyObject(rep)){
+                    reporterhtml = rep.displayName + " / " + rep.emailAddress
+                }
+                if(!$.isEmptyObject(ass)){
+                    assigneehtml = ass.displayName + " / " + ass.emailAddress
+                }
+
+                $("#detail-title").html(d.title)
+                $("#detail-subtitle").html("<b>Subtitle: </b>"   + d.subtitle)
+                $("#detail-reporter").html("<b>Reporter: </b>"   + reporterhtml)
+                $("#detail-assignee").html("<b>Assignee: </b>"   + assigneehtml)
+                $("#detail-id"      ).html("<b>ID: </b>"         + d.id)
+                $("#detail-type"    ).html("<b>Type: </b>"       + d.type)
+                $("#detail-start"   ).html("<b>Start Date: </b>" + d.startdate)
+                $("#detail-end"     ).html("<b>End Date: </b>"   + d.enddate)
+                if(d.description){
+                    $("[id^=detail-description]").show();
+                    $("#detail-description-p").html("<b>Description: </b>"+ d.description)
+                }
+                else{
+                    $("[id^=detail-description]").hide();
+                }
+            }
+
+            // (3) And go!
+            d3.json("data/jira_small.json",  function(json) {
+              // Reduce size of dataset for demo
+              DATA = json
+              console.log(DATA.length)
+              jscanner.init(DATA);
+              vis.init(DATA,options);
+            });
+
+            // Called after vis is finished loading
+            $(window).bind("load", function() {
+                // Then show the toolbar
+                $("#lookupform").css({ left: vis.margin.left, position:'relative' }).show()
+                });
+            });
+
+    </script>
+</html>

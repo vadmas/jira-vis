@@ -1,0 +1,81 @@
+/*
+
+.color-primary-0 { color: #FF9F2F } Orange
+.color-primary-1 { color: #774000 } Shade orange
+.color-primary-2 { color: #7C5830 } grey orange
+.color-primary-3 { color: #FFB157 } Light orange
+.color-primary-4 { color: #DB7500 } deep orange
+
+.color-secondary-1-0 { color: #6635C6 } purple
+.color-secondary-1-1 { color: #1D0351 } Shade purple
+.color-secondary-1-2 { color: #362654 } grey purple
+.color-secondary-1-3 { color: #8659DC } Light purple
+.color-secondary-1-4 { color: #380895 } deep purple
+
+.color-secondary-2-0 { color: #8DED2C } green
+.color-secondary-2-1 { color: #366B00 } Shade green
+.color-secondary-2-2 { color: #4D6F2B } grey green
+.color-secondary-2-3 { color: #A4F453 } Light green
+.color-secondary-2-4 { color: #64C500 } deep green
+
+.color-complement-0 { color: #2A8DBD } blue
+.color-complement-1 { color: #01334B } Shade blue
+.color-complement-2 { color: #203F4E } grey blue
+.color-complement-3 { color: #50ABD7 } Light blue
+.color-complement-4 { color: #045E8A } deep blue
+
+White FFFBF6
+Black 01121A
+
+ */
+
+
+
+/* Eric Meyer's Reset CSS v2.0 - http://cssreset.com */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0}article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:none}table{border-collapse:collapse;border-spacing:0}
+ 
+body {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  font-weight: 300;
+  font-size: 1.2em;
+  line-height: 1.2em;
+  background: #FFFFFF;
+  color: #01121A;
+}
+ 
+strong {
+  font-weight: 600;
+}
+ 
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  font-weight: 700;
+  color: #01121A;
+  font-size: 1.75em;
+  margin-bottom: .4em;
+}
+ 
+p {
+  margin-bottom: .5em;
+}
+ 
+.container {
+  width: 80%;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-top:10px;
+}
+ 
+@media all and (max-width: 500px) {
+  h2 {
+    padding-left: 10px;
+    text-align: center;
+  }
+  .container {
+    width: 100%;
+  }
+}
+ 
+#graphic {
+  margin: 0 auto;
+}
